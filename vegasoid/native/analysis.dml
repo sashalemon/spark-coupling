@@ -1,0 +1,79 @@
+source("nn/layers/affine.dml") as affine
+source("nn/layers/l2_loss.dml") as l2_loss
+source("nn/layers/sigmoid.dml") as sigmoid
+source("nn/layers/softmax.dml") as softmax
+source("nn/optim/adam.dml") as adam
+
+i=0
+X=df[,1:2]
+D = ncol(X) # num features
+N = nrow(X) # num examples
+t = 2 # num targets
+W1=w1
+W2=w2
+
+## {{{ BEGIN Predict
+print("Guessing")
+p1 = affine::forward(X, W1, b1)
+p2 = sigmoid::forward(p1)
+p3 = affine::forward(p2, W2, b2)
+probs = softmax::forward(p3)
+#p3 = affine::forward(p2, W2, b2)
+#probs = softmax::forward(p3)
+write(probs, "pred.csv", format="csv", header=TRUE)
+write(X, "X.csv", format="csv", header=TRUE)
+## }}} END Predict
+
+##### {{{ BEGIN Optimize
+#y=cbind(1-df[,3],df[,3])
+#
+### Initialize optimizer
+#lr = 0.03 # learning rate
+#beta1 = 0.9
+#beta2 = 0.999
+#epsilon = 1e-8
+#batch_size = 16
+#epochs = 128
+#iters = N / batch_size
+#print("Optimizing")
+#for (e in 1:epochs) {
+#  for(i in 1:iters) {
+#    # Get next batch
+#    X_batch = X[i:i+batch_size-1,]
+#    y_batch = y[i:i+batch_size-1,]
+#
+#    # Compute forward pass
+#    out1 = affine::forward(X_batch, W1, b1)
+#    outr1 = sigmoid::forward(out1)
+#    out2 = affine::forward(outr1, W2, b2)
+#    probs  = softmax::forward(out2)
+#
+#    # Compute loss
+#    loss = l2_loss::forward(probs, y_batch)
+#    #loss = cross_entropy_loss::forward(probs, y_batch)
+#    #print("BCE loss: " + loss)
+#
+#    # Compute backward pass
+#    dprobs = l2_loss::backward(probs, y_batch)
+#    dout2 = softmax::backward(dprobs, out2)
+#    # dout2 = l2_loss::backward(out2, y_batch)
+#    [doutr1, dW2, db2] = affine::backward(dout2, outr1, W2, b2)
+#    dout1 = sigmoid::backward(doutr1, out1)
+#    [dX_batch, dW1, db1] = affine::backward(dout1, X_batch, W1, b1)
+#
+#    # Optimize with ADAM
+#    [W1,mw1,vw1]=adam::update(W1, dW1, lr, beta1, beta2, 
+#            epsilon, e*i-1, mw1, vw1)
+#    [b1,mb1,vb1]=adam::update(b1, db1, lr, beta1, beta2, 
+#            epsilon, e*i-1, mb1, vb1)
+#    [W2,mw2,vw2]=adam::update(W2, dW2, lr, beta1, beta2, 
+#            epsilon, e*i-1, mw2, vw2)
+#    [b2,mb2,vb2]=adam::update(b2, db2, lr, beta1, beta2, 
+#            epsilon, e*i-1, mb2, vb2)
+#  }
+#}
+##### }}} END Optimize
+#print(ncol(W1)); #print(ncol(b1));
+#print(nrow(W1)); #print(nrow(b1));
+#print(ncol(W2)); #print(ncol(b2));
+#print(nrow(W2)); #print(nrow(b2));

@@ -1,0 +1,24 @@
+#!/usr/bin/env ruby
+
+require 'json'
+require 'net/http'
+require 'thor'
+require 'uri'
+
+def req args
+  res = Net::HTTP.post(URI('http://127.0.0.1:8082/ready'), args.to_json, "Content-Type" => "application/json")
+  puts res.body
+end
+
+class OOBCLI < Thor
+  desc 'init', "Initialize SystemML"
+  def init
+    req({ dependencies: [], analysis: "Init" })
+  end
+  desc 'dump', "Request to write the state of SystemML"
+  def dump
+    req({ dependencies: [], analysis: "Printer" })
+  end
+end
+
+OOBCLI.start(ARGV)

@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+set -e
+export LD_LIBRARY_PATH=../deps_build/libcourier:$LD_LIBRARY_PATH
+./oob init
+./sim
+./oob dump
+#./dbg

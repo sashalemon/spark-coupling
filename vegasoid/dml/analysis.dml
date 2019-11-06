@@ -1,0 +1,23 @@
+nbins = nrow(h) #for square space
+dmin = 0
+dmax = 100
+stride = dmax/nbins 
+cuts = seq(dmin,dmax,stride)
+x=df[,1]
+y=df[,2]
+b=df[,3]
+gx=ceil(x / stride)
+gy=ceil(y / stride)
+analysis = matrix(0,nbins*nbins,3) #one-round hist
+for (i in 1:nbins) {
+    for (j in 1:nbins) {
+        analysis[(i-1) * nbins + j,1] = cuts[i]
+        analysis[(i-1) * nbins + j,2] = cuts[j]
+    }
+}
+for (i in 1:length(gx)) {
+    j = as.scalar(gx[i])
+    k = as.scalar(gy[i])
+    analysis[(j-1) * nbins + k,3] = (analysis[(j-1) * nbins + k,3] + b[i]) - (-sign(h[j,k])*h[j,k])
+    h[j,k] = h[j,k] + b[i]
+}

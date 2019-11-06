@@ -1,0 +1,3 @@
+nbins = 64
+#h = matrix(0,32,32)
+h = matrix(0,nbins,nbins)

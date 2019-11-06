@@ -1,0 +1,25 @@
+#!/bin/bash
+#SBATCH -J test # Job name
+#SBATCH -o jobs/%j.out # Name of stdout output file (%j expands to %jobId)
+#SBATCH -N 8 # Total number of nodes requested
+#SBATCH -n 8 # Total number of mpi tasks #requested
+#SBATCH -t 15:30:00 # Run time (hh:mm:ss) - 15.5 hours
+#SBATCH --export=ALL
+. $KERL_INSTALLS/19.1/activate
+export MACHINEFILE=mpi-nodelist
+export NUM_NODES=8
+export SUPER=./run
+export SHELL=/usr/bin/bash
+#Setting JAVA_HOME may be necessary depending on your cluster
+#In testing a standalone jdk8u144-b01 was used
+
+srun -n$NUM_NODES -l /bin/hostname -s \
+    | sort -n | awk '{print $2}' | tee $MACHINEFILE \
+    | perl -lpne "s/(.*)/'\1.nebula'./" \
+    > .hosts.erlang
+
+export MASTER=$(head -n1 $MACHINEFILE)
+export DRIVER=$MASTER
+# If you haven't installed the coupling transport libraries on your default path, make sure to add them here
+#export LD_LIBRARY_PATH=$PATH_TO_TRANSPORT_LIBS:$LD_LIBRARY_PATH
+srun -n$NUM_NODES -l $SUPER

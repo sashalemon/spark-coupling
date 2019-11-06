@@ -1,0 +1,4 @@
+#Printer
+#print(toString(h))
+print("Writing Histogram")
+write(h, "hist.csv", format="csv", header=TRUE)

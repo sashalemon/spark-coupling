@@ -1,0 +1,63 @@
+#!/usr/bin/env escript
+%%
+%%! -name mgr -connect_all false
+% To be secure add this, but you need certs to use it. -proto_dist inet_tls %
+-import(exec, []).
+
+-define(ME,filename:dirname(escript:script_name())). 
+
+main(_Args) ->
+    true = code:add_pathz("<PATH_TO_ERLEXEC>/erlexec/_build/default/lib/erlexec/ebin"),
+    exec:start([]),
+    %io:format("~p\n", [?ME]),
+    %io:format("~p\n", [node()]),
+    run(list_to_atom(net_adm:localhost()), net_adm:host_file()),
+    halt(0).
+
+cwd() -> {ok, Cwd} = file:get_cwd(), Cwd.
+
+logfiles(Path) ->
+    Stdout = cwd() ++ "/logs/" ++ Path ++ ".out",
+    Stderr = cwd() ++ "/logs/" ++ Path ++ ".err",
+    [{stdout, Stdout}, {stderr, Stderr}].
+
+wait_for_workers(Workers)->
+    timer:sleep(1000),
+    NHosts = length(Workers),
+    World = net_adm:world_list(Workers, verbose),
+    case length(World) of
+        NHosts ->
+            World;
+        _ -> 
+            wait_for_workers(Workers)
+    end.
+
+run(Master, [Master | Workers]) -> 
+    io:format("I'm the master! (~p)\n", [Master]),
+    register(master, self()),
+    {ok, _, SparkMaster} = exec:run("<SPARK_INSTALL_DIR>/spark-2.3.0-bin-hadoop2.7/sbin/start-master.sh", 
+                                         logfiles("master")),
+    {ok, _, SparkSubmit} = exec:run(cwd() ++ "/spark-job", 
+                                         logfiles("driver")),
+    World = wait_for_workers(Workers),
+    io:format("My world is (~p)\n", [World]),
+    %exec:run(cwd() ++ "/test par 10", [sync]),
+    lists:foreach(fun(Method) -> exec:run(cwd() ++ "/test " ++ Method, [sync]) end, ["par"]),
+    lists:foreach(fun(Node) -> {worker, Node} ! {{master, Master}, die} end, World),
+    exec:stop(SparkSubmit),
+    exec:stop(SparkMaster)
+    ;
+
+run(Name, [Master | _Workers]) ->
+    io:format("I'm a worker! (~p)\n", [Name]),
+    register(worker, self()),
+    LogOpts = logfiles("workers/" ++ atom_to_list(Name)),
+    {ok, _, WorkerID} = exec:run_link(cwd() ++ "/worker", LogOpts),
+    %io:format("Logging to (~p)\n", [LogOpts]),
+    receive 
+        {{master, Master}, die} -> 
+            io:format("Shutting down\n", []),
+            exec:stop(WorkerID),
+            halt(0)
+    end
+    .

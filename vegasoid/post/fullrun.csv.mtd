@@ -1,0 +1,12 @@
+{
+    "data_type": "matrix",
+    "value_type": "double",
+    "rows": 64,
+    "cols": 64,
+    "nnz": 4094,
+    "format": "csv",
+    "header": true,
+    "sep": ",",
+    "author": "Alexander Lemon",
+    "created": "2019-05-22 15:57:38 MDT"
+}

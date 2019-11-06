@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+$SPARK_INSTALL_DIR/spark-2.3.0-bin-hadoop2.7/bin/spark-submit \
+		--master "spark://$MASTER:7077" \
+		--class Main \
+		--driver-memory 4g \
+		--conf "spark.executor.memory=8g" \
+		--conf "spark.executorEnv.STATSD=172.16.1.100" \
+		--conf 'spark.metrics.namespace=${spark.app.name}' \
+		$PATH_TO_TRANSPORT_LIBRARIES/libcourier.jar

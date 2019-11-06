@@ -1,0 +1,30 @@
+#!/usr/bin/env perl
+
+use warnings;
+use strict;
+use POSIX qw( ceil );
+use FindBin qw($Bin);
+use Cwd qw(abs_path);
+
+$ENV{'LD_LIBRARY_PATH'}=abs_path("$Bin/lib:").$ENV{'LD_LIBRARY_PATH'};
+$ENV{'RUST_BACKTRACE'}='1';
+
+my $nrows = 1;
+while ($nrows < 1e7) {
+    for (my $i = 0; $i < 10; $i++) {
+        run_once($nrows);
+    }   
+    $nrows += ceil($nrows * 0.25);
+}
+while ($nrows < 1e8) {
+    for (my $i = 0; $i < 3; $i++) {
+        run_once($nrows);
+    }   
+    $nrows += ceil($nrows * 0.25);
+}
+
+sub run_once {
+    my $nrows = shift(@_);
+    system("$Bin/par/main $nrows");
+    system("$Bin/fs/main $nrows");
+}

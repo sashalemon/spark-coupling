@@ -1,0 +1,5 @@
+#!/bin/bash
+mpirun \
+    -n $((NUM_NODES - 1)) \
+    -hostfile <(tail -n+2 $MACHINEFILE) \
+    $BENCHMARK_BUILD/$1/main &> output/timing-${1}.txt

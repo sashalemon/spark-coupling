@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+./target/release/rs-structparse $@

@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+export NUM_NODES=1
+export JAVA_OPTS=-XX:+UseG1GC 
+export SPARK_PATH=$SPARK_INSTALL_DIR/spark-2.4.3-bin-without-hadoop-scala-2.12
+    
+$SPARK_PATH/bin/spark-submit \
+    --master local[*] \
+    --class Main \
+    --driver-memory 4g \
+    --conf spark.driver.maxResultSize=0 \
+    --jars $(readlink -f ../jvm-redux/lib/SystemML.jar) \
+    $(readlink -f ../jvm-redux/target/scala-2.12/spark-pruner.jar)

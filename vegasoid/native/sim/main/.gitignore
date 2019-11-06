@@ -1,0 +1,8 @@
+dbg
+sim
+hist.tab
+src/old.c
+src/test.c
+oob
+*.dat
+*.tsv

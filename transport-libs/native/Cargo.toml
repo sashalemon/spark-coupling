@@ -1,0 +1,16 @@
+[package]
+name = "ring"
+version = "0.1.0"
+authors = ["Alexander Lemon <amikharemon@gmail.com>"]
+license = "BSD-3-Clause"
+
+[dependencies]
+memmap = "0.5.2"
+libc = "0.2"
+hyper = "0.10.11"
+mime = "0.2.6"
+json = "0.11.6"
+
+[lib]
+name = "courier"
+crate-type = ["dylib"]
